@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_with_no_props(self):
@@ -14,6 +14,25 @@ class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_with_one_prop(self):
         node = HTMLNode("a", "Click me", None, {"href": "https://example.com"})
         self.assertEqual(node.props_to_html(), ' href="https://example.com"')
+
+    def test_tag(self):
+        node = LeafNode(None, "Click me", {"href": "https://example.com"})
+        self.assertEqual(node.tag, None)
+
+    def test_string(self):
+        node = LeafNode("p", "Click me", {"href": "https://example.com"})
+        self.assertEqual(node.tag, "p")
+        self.assertEqual(node.value, "Click me")
+        self.assertEqual(node.props, {"href": "https://example.com"})
+        
+        props_html = node.props_to_html()
+        self.assertTrue(' href="https://example.com"' in props_html)
+
+    # Add more test cases for leaf node
+    # A regular tag with value renders correctly
+    # A node with no tag renders just the text value
+    # A node with no value raises a ValueError
+    # A node with properties renders those correctly in the tag
     
     def test_props_to_html_with_multiple_props(self):
         node = HTMLNode("a", "Click me", None, {
