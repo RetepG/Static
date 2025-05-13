@@ -1,3 +1,4 @@
+from textnode import TextNode, TextType
 
 class HTMLNode():
     def __init__(self, tag = None, value = None, children = None, props = None):
@@ -35,6 +36,9 @@ class LeafNode(HTMLNode):
 
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
     
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+    
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props = None):
         super().__init__(tag = tag, value = None, children = children, props = props)
@@ -54,5 +58,31 @@ class ParentNode(HTMLNode):
         string_format += f"</{self.tag}>"
 
         return string_format
+    
+    def __repr__(self):
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
         
 
+def text_node_to_html_node(text_node):
+    if text_node.text_type == TextType.NORMAL_TEXT:
+        node = LeafNode(None, text_node.text, None)
+        return node
+    elif text_node.text_type == TextType.BOLD_TEXT:
+        node = LeafNode("b", text_node.text, None)
+        return node
+    elif text_node.text_type == TextType.ITALIC_TEXT:
+        node = LeafNode("i", text_node.text, None)
+        return node
+    elif text_node.text_type == TextType.CODE_TEXT:
+        node = LeafNode("code", text_node.text, None)
+        return node
+    elif text_node.text_type == TextType.LINKS:
+        convert_props_string_to_dict = {"href": text_node.url}
+        node = LeafNode("a", text_node.text, convert_props_string_to_dict)
+        return node
+    elif text_node.text_type == TextType.IMAGES:
+        convert_prop_img_string = {"src": text_node.url, "alt": text_node.text}
+        node = LeafNode("img", "", convert_prop_img_string)
+        return node
+    else:
+        raise Exception("Should have text type of NORMAL, BOLD, ITALIC, CODE, LINKS, and IMAGES only")
