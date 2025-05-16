@@ -31,3 +31,41 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
     convert_anchor_url = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', text)
     return convert_anchor_url
+
+def split_nodes_image(old_nodes):
+    combine_text = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.NORMAL_TEXT:
+            combine_text.append(node)
+            continue
+
+        original_text = node.text
+        images = extract_markdown_images(original_text)
+
+        if not images:
+            combine_text.append(node)
+            continue
+
+        for alt_text, url in images:
+            split = original_text.split(f"![{alt_text}]({url})", 1)
+
+            if len(split) != 2:
+                raise ValueError("Invalid markdown: image section not closed")
+
+            if split[0]:
+                combine_text.append(TextNode(split[0], TextType.NORMAL_TEXT))
+
+            combine_text.append(TextNode(alt_text, TextType.IMAGES, url))
+            original_text = split[1]
+
+        if split[1]:
+            combine_text.append(TextNode(original_text, TextType.NORMAL_TEXT))
+
+    return combine_text
+
+
+
+
+def split_nodes_link(old_nodes):
+    pass
