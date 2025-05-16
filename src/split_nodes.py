@@ -1,3 +1,4 @@
+import re
 from textnode import *
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -22,3 +23,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     combine_text.append(TextNode(parts, text_type))
 
     return combine_text
+
+def extract_markdown_images(text):
+    convert_alt_url = re.findall(r'!\[([^\]]+)\]\(([^)]+)\)', text)
+    return convert_alt_url
+
+def extract_markdown_links(text):
+    convert_anchor_url = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', text)
+    return convert_anchor_url
