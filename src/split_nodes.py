@@ -64,8 +64,35 @@ def split_nodes_image(old_nodes):
 
     return combine_text
 
-
-
-
 def split_nodes_link(old_nodes):
-    pass
+    comnbine_text = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.NORMAL_TEXT:
+            comnbine_text.append(node)
+            continue
+    
+        original_text = node.text
+        links = extract_markdown_links(original_text)
+
+        if not links:
+            comnbine_text.append(node)
+            continue
+
+        for alt_text, url in links:
+            split = original_text.split(f"[{alt_text}]({url})", 1)
+
+            if len(split) != 2:
+                raise ValueError("Invalid markdown: image section not closed")
+            
+            if split[0]:
+                comnbine_text.append(TextNode(split[0], TextType.NORMAL_TEXT))
+
+            comnbine_text.append(TextNode(alt_text, TextType.LINKS, url))
+            original_text = split[1]
+        
+        if split[1]:
+            comnbine_text.append(TextNode(original_text, TextType.NORMAL_TEXT))
+    return comnbine_text
+
+def text_to_textnodes(text):
