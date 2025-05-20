@@ -1,6 +1,7 @@
 import re
 from textnode import *
 
+#Used to convert TextNode class and splitting them depending on delimiter(Bold,Italic, so on)
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     combine_text = []
     for node in old_nodes:
@@ -24,6 +25,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     return combine_text
 
+#Used to find all instances matching images and links in markdown
 def extract_markdown_images(text):
     convert_alt_url = re.findall(r'!\[([^\]]+)\]\(([^)]+)\)', text)
     return convert_alt_url
@@ -32,6 +34,7 @@ def extract_markdown_links(text):
     convert_anchor_url = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', text)
     return convert_anchor_url
 
+#Used to split Images, dividing between text and image
 def split_nodes_image(old_nodes):
     combine_text = []
 
@@ -96,3 +99,10 @@ def split_nodes_link(old_nodes):
     return comnbine_text
 
 def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.NORMAL_TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD_TEXT)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC_TEXT)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE_TEXT)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
