@@ -1,11 +1,19 @@
 from textnode import TextNode, TextType
 import os
 import shutil
+from block_mardown import generate_page
 
 def main():
     textnode = TextNode("This is some anchor text", TextType.LINKS, "https://www.boot.dev")
     print(textnode)
     copy_static_to_public()
+
+    generate_page(
+        from_path="content/index.md",
+        template_path="template.html",
+        dest_path="public/index.html"
+    )
+    print("Site generation complete!")
 
 def copy_static_to_public(src='static', dst='public'):
     """

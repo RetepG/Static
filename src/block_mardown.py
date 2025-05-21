@@ -2,6 +2,7 @@ from enum import Enum
 from split_nodes import text_to_textnodes
 from htmlnode import text_node_to_html_node, ParentNode
 from textnode import *
+import os
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -67,15 +68,15 @@ def block_to_html_node(block):
         return heading_to_html_node(block)
     if block_type == BlockType.CODE:
         return code_to_html_node(block)
-    if block_type == BlockType.OLIST:
+    if block_type == BlockType.ORDERED_LIST:
         return olist_to_html_node(block)
-    if block_type == BlockType.ULIST:
+    if block_type == BlockType.UNORDERED_LIST:
         return ulist_to_html_node(block)
     if block_type == BlockType.QUOTE:
         return quote_to_html_node(block)
     raise ValueError("invalid block type")
 
-
+#Helper Functions
 def text_to_children(text):
     text_nodes = text_to_textnodes(text)
     children = []
@@ -147,6 +148,8 @@ def quote_to_html_node(block):
     children = text_to_children(content)
     return ParentNode("blockquote", children)
 
+
+#Get Title from markdown
 def extract_title(markdown):
     lines = markdown.split("\n")
 
@@ -156,3 +159,29 @@ def extract_title(markdown):
             return line[2:].strip()
         
     raise Exception("No title found in markdown")
+
+#Generate WebPage
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}.")
+
+    #read markdown from location
+    with open(from_path, "r") as f:
+        markdown_content = f.read()
+
+    #read template
+    with open(template_path, "r") as f:
+        template_content = f.read()
+
+    #change from markdown to html
+    html_convert = markdown_to_html_node(markdown_content)
+    #parent to_html
+    html_content = html_convert.to_html()
+    get_title = extract_title(markdown_content)
+
+    template_content = template_content.replace("{{ Title }}", get_title)
+    template_content = template_content.replace("{{ Content }}", html_content)
+
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+    with open(dest_path, "w") as f:
+        f.write(template_content)
