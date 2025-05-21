@@ -59,6 +59,15 @@ This is the same paragraph on a new line
         block = "paragraph"
         self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
+    def test_extract_titles(self):
+        title = "Hello"
+        self.assertEqual(extract_title("# Hello"), title)
+        self.assertEqual(extract_title("#      Hello  "), title)
+        self.assertEqual(extract_title("# Long Title"), "Long Title")
+        with self.assertRaises(Exception):
+            extract_title("No title found in markdown")
+
+
 
 if __name__ == "__main__":
     unittest.main()
